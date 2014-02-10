@@ -6,27 +6,7 @@ import groovy.xml.MarkupBuilder
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.charset.Charset
 import java.text.SimpleDateFormat
-
-import java.sql.*
-
-
-
-
-class QVXField {
-
-    ResultSetMetaData metadata
-    int fieldNumber
-
-    def writeFieldHeader(builder){
-        builder.QVXFieldHeader {
-            FieldName( metadata.getColumnName())
-        }
-    }
-
-}
-
 
 class QVXWriter {
 
@@ -52,8 +32,13 @@ class QVXWriter {
             (1..meta.columnCount).each { index ->
                 QvxFieldHeader {
                     FieldName( meta.getColumnName(index) )
-                    typeMapper.getFieldHeader(meta.getColumnClassName(index)).call(builder, meta.isNullable(index))
-                    writers.push typeMapper.writeData(meta.getColumnClassName(index), meta.isNullable(index))
+                    def className = meta.getColumnClassName(index)
+                    if (className.contains("BigDecimal")) {
+                        typeMapper.getFieldHeader(className).call(builder, meta.getScale(index), meta.isNullable(index))
+                    } else {
+                        typeMapper.getFieldHeader(className).call(builder, meta.isNullable(index))
+                    }
+                    writers.push typeMapper.writeData( meta.getColumnClassName(index), meta.isNullable(index) )
                 }
             }
         }
