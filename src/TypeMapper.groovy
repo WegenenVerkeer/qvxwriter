@@ -72,6 +72,19 @@ class TypeMapper {
                 { value, buffer -> buffer.putDouble(value) }
         )
 
+        addType(Float.class.getCanonicalName(),
+                { builder, isNullable ->
+                    builder.Type("QVX_IEEE_REAL")
+                    builder.Extent("QVX_FIX")
+                    markNullRepr(builder, isNullable)
+                    builder.BigEndian(0)
+                    builder.ByteWidth(4)
+                    builder.FieldFormat {
+                        Type("REAL")
+                    }
+                },
+                { value, buffer -> buffer.putFloat(value) }
+        )
 
         addType(String.class.getCanonicalName(),
                 { builder, isNullable ->
@@ -88,6 +101,23 @@ class TypeMapper {
                 }
         )
 
+        addType(Boolean.class.getCanonicalName(),
+                { builder, isNullable ->
+                    builder.Type("QVX_TEXT")
+                    builder.EXTENT("QVX_ZERO_TERMINATED")
+                    markNullRepr(builder, isNullable)
+                    builder.FieldFormat {
+                        Type("ASCII")
+                    }
+                },
+                { value, buffer ->
+                    String s = value ? "J" : "N"
+                    buffer.put(s.getBytes(Charset.forName("UTF-8")))
+                    buffer.put((byte) 0)
+                }
+        )
+
+
         addType(Integer.class.getCanonicalName(),
                 { builder, isNullable ->
                     builder.Type("QVX_SIGNED_INTEGER")
@@ -100,24 +130,76 @@ class TypeMapper {
                         nDec(0)
                     }
                 },
-                { value, buffer -> buffer.putInt(value)}
+                { value, buffer -> buffer.putInt(value) }
         )
 
         addType(java.sql.Date.class.getCanonicalName(),
                 { builder, isNullable ->
-                            builder.Type("QVX_TEXT")
-                            builder.Extent("QVX_ZERO_TERMINATED")
-                            markNullRepr(builder, isNullable)
-                            builder.FieldFormat {
-                                Type("DATE")
-                                Fmt("YYYY-M-D")
-                            }
-                        },
+                    builder.Type("QVX_TEXT")
+                    builder.Extent("QVX_ZERO_TERMINATED")
+                    markNullRepr(builder, isNullable)
+                    builder.FieldFormat {
+                        Type("DATE")
+                        Fmt("YYYY-M-D")
+                    }
+                },
                 { value, buffer ->
                     def dateFormatter = new SimpleDateFormat("yyyy-MM-dd")
                     buffer.put(dateFormatter.format(new java.util.Date(value.getTime())).getBytes(Charset.forName("UTF-8")))
-                    buffer.put((byte)0)
+                    buffer.put((byte) 0)
                 }
         )
+
+        addType(java.sql.Time.class.getCanonicalName(),
+                { builder, isNullable ->
+                    builder.Type("QVX_TEXT")
+                    builder.Extent("QVX_ZERO_TERMINATED")
+                    markNullRepr(builder, isNullable)
+                    builder.FieldFormat {
+                        Type("TIME")
+                        Fmt("h:mm:ss")
+                    }
+                },
+                { value, buffer ->
+                    def dateFormatter = new SimpleDateFormat("h:m:s")
+                    buffer.put(dateFormatter.format(new java.util.Date(value.getTime())).getBytes(Charset.forName("UTF-8")))
+                    buffer.put((byte) 0)
+                }
+        )
+
+        addType(java.sql.Timestamp.class.getCanonicalName(),
+                { builder, isNullable ->
+                    builder.Type("QVX_TEXT")
+                    builder.Extent("QVX_ZERO_TERMINATED")
+                    markNullRepr(builder, isNullable)
+                    builder.FieldFormat {
+                        Type("TIMESTAMP")
+                        Fmt("YYYY-M-D h:mm:ss")
+                    }
+                },
+                { value, buffer ->
+                    def dateFormatter = new SimpleDateFormat("yyyy-MM-dd h:m:s")
+                    buffer.put(dateFormatter.format(new java.util.Date(value.getTime())).getBytes(Charset.forName("UTF-8")))
+                    buffer.put((byte) 0)
+                }
+        )
+
+        addType(java.math.BigDecimal.class.getCanonicalName(),
+                { builder, scale, isNullable ->
+                    builder.Type("QVX_SIGNED_INTEGER")
+                    builder.Extent("QVX_FIX")
+                    markNullRepr(builder, isNullable)
+                    builder.BigEndian(0)
+                    builder.ByteWidth(8)
+                    builder.FixPointDecimals(scale)
+                    builder.FieldFormat {
+                        Type("FIX")
+//                        nDec(scale)
+                    }
+                },
+                { value, buffer -> buffer.putLong(value.unscaledValue().longValue()) }
+        )
+
+
     }
 }
