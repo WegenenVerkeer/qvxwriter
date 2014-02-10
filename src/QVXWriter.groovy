@@ -44,14 +44,14 @@ class QVXWriter {
         }
     }
 
-    def writeTableMetadata(meta) {
+    def writeTableMetadata(meta, sqlStmt) {
         def dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
         xml.QvxTableHeader {
             MajorVersion(1)
             MinorVersion(0)
             CreateUtcTime(dateFormatter.format(new java.util.Date()))
-            TableName("SELECT ProductID, Name, ListPrice FROM AdventureWorks.Production.Product")
+            TableName(sqlStmt)
             UsesSeparatorByte(0)
             BlockSize(0)
             writeFieldHeaders(xml, meta)
@@ -66,7 +66,7 @@ class QVXWriter {
     def writeData(values, maxSize = 1024*1024) {
         ByteBuffer buf = ByteBuffer.allocate(maxSize)
         buf.order(ByteOrder.LITTLE_ENDIAN)
-        (0..< values.size).each {
+        (0..< values.size() ).each {
             def writer = writers[it]
             writer(values[it], buf)
         }
