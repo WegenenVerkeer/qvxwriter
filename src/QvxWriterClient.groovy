@@ -10,20 +10,17 @@ import groovy.sql.GroovyResultSet
 import groovy.sql.ResultSetMetaDataWrapper
 import groovy.sql.Sql
 
+import javax.sql.DataSource
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 
 @Grab(group='postgresql', module='postgresql', version='8.3-603.jdbc4')
 def createDb() {
-   source = new org.postgresql.ds.PGSimpleDataSource()
-   source.databaseName = 'historia-devt'
-   source.user = "postgres"
-   source.password = "postgres"
-   db = new groovy.sql.Sql(source)
+    groovy.sql.Sql.newInstance('jdbc:postgresql://localhost:5432/historia-devt', "postgres", "postgres","org.postgresql.Driver")
 }
 
 def getMetaData (db) {
-    return db.getDataSource().getConnection().getMetaData()
+    return db.getConnection().getMetaData()
 }
 
 
@@ -55,16 +52,17 @@ def export(db, dirName, table) {
 
 }
 
-def dir = "/Users/maesenka/Downloads"
+def dir = "/Users/maesenka/Downloads/qvx"
 
 def db = createDb()
 
 String[] tableTypes = ["TABLE", "VIEW"]
 String schema = "external"
-
+String tableNamePattern = "vw_%"
 
 def start = System.currentTimeMillis()
-def tableMeta = getMetaData(db).getTables(null, schema , null, tableTypes )
+def tableMeta = getMetaData(db).getTables(null, schema , tableNamePattern, tableTypes )
+
 while ( tableMeta.next() ) {
     String tableName = (schema != null) ? schema + '.' + tableMeta.getString(3) : tableMeta.getString(3)
     export(db, dir, tableName)

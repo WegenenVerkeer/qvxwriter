@@ -15,28 +15,26 @@ class QVXWriter {
     OutputStream outStream
     OutputStreamWriter writer
     MarkupBuilder xml
-    final private byte[] HDSep = [(byte) 0].toArray(new byte[1])
+    final private byte[] HDSep = [(byte) 0].toArray()
 
     def open(fName) {
         outStream = new FileOutputStream(fName, false)
         writer = new OutputStreamWriter(outStream, "UTF-8")
         xml = new MarkupBuilder(writer)
         xml.mkp.xmlDeclaration([standalone: "yes", version: "1.0", encoding: "UTF-8"])
-
     }
 
 
-    def writeFieldHeaders(builder, meta) {
-
-        builder.Fields {
+    def writeFieldHeaders(meta) {
+        xml.Fields {
             (1..meta.columnCount).each { index ->
                 QvxFieldHeader {
                     FieldName( meta.getColumnName(index) )
                     def className = meta.getColumnClassName(index)
                     if (className.contains("BigDecimal")) {
-                        typeMapper.getFieldHeader(className).call(builder, meta.getScale(index), meta.isNullable(index))
+                        typeMapper.getFieldHeader(className).call(xml, meta.getScale(index), meta.isNullable(index))
                     } else {
-                        typeMapper.getFieldHeader(className).call(builder, meta.isNullable(index))
+                        typeMapper.getFieldHeader(className).call(xml, meta.isNullable(index))
                     }
                     writers.push typeMapper.writeData( meta.getColumnClassName(index), meta.isNullable(index) )
                 }
@@ -54,9 +52,8 @@ class QVXWriter {
             TableName(sqlStmt)
             UsesSeparatorByte(0)
             BlockSize(0)
-            writeFieldHeaders(xml, meta)
+            writeFieldHeaders(meta)
         }
-
     }
 
     def writeHeaderDataSeperator() {
