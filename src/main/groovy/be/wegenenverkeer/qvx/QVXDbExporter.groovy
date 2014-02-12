@@ -1,4 +1,7 @@
-import groovy.sql.Sql
+package be.wegenenverkeer.qvx
+
+import be.wegenenverkeer.qvx.QVXDbExportConfig
+import be.wegenenverkeer.qvx.QVXWriter
 
 /**
  * @author Karel Maesen, Geovise BVBA, 2014
@@ -15,7 +18,11 @@ class QVXDbExporter {
     }
 
     QVXDbExporter(QVXDbExportConfig config) {
-        this.config = config
+        if (config != null) {
+            this.config = config
+        } else {
+            this.config = new QVXDbExportConfig()
+        }
     }
 
     public void run() {

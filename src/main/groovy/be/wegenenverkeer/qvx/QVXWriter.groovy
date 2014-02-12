@@ -1,7 +1,4 @@
-/**
- * @author Karel Maesen, Geovise BVBA, 2014
- */
-
+package be.wegenenverkeer.qvx
 
 import groovy.sql.Sql
 import groovy.xml.MarkupBuilder
