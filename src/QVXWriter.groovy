@@ -2,6 +2,8 @@
  * @author Karel Maesen, Geovise BVBA, 2014
  */
 
+
+import groovy.sql.Sql
 import groovy.xml.MarkupBuilder
 
 import java.nio.ByteBuffer
@@ -17,7 +19,27 @@ class QVXWriter {
     MarkupBuilder xml
     final private byte[] HDSep = [(byte) 0].toArray()
 
-    def open(fName) {
+
+    def write(File fName, String tableName, Sql db) {
+        open(fName)
+        println "Exporting $tableName to $fName ..."
+        def sqlStmt = 'select * from ' + tableName
+        def writeHeader = { meta ->
+            // write header
+            this.writeTableMetadata(meta, sqlStmt)
+            this.writeHeaderDataSeperator()
+        }
+
+        def writeRow = { row ->
+            this.writeData(row.toRowResult())
+        }
+
+        db.eachRow(sqlStmt, writeHeader, writeRow)
+        println "Export complete."
+        close()
+    }
+
+    private void open(fName) {
         outStream = new FileOutputStream(fName, false)
         writer = new OutputStreamWriter(outStream, "UTF-8")
         xml = new MarkupBuilder(writer)
@@ -25,7 +47,7 @@ class QVXWriter {
     }
 
 
-    def writeFieldHeaders(meta) {
+    private void writeFieldHeaders(meta) {
         xml.Fields {
             (1..meta.columnCount).each { index ->
                 QvxFieldHeader {
@@ -42,7 +64,7 @@ class QVXWriter {
         }
     }
 
-    def writeTableMetadata(meta, sqlStmt) {
+    private void writeTableMetadata(meta, sqlStmt) {
         def dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
         xml.QvxTableHeader {
@@ -56,11 +78,11 @@ class QVXWriter {
         }
     }
 
-    def writeHeaderDataSeperator() {
+    private void writeHeaderDataSeperator() {
         outStream.write(HDSep)
     }
 
-    def writeData(values, maxSize = 1024*1024) {
+    private void writeData(values, maxSize = 1024*1024) {
         ByteBuffer buf = ByteBuffer.allocate(maxSize)
         buf.order(ByteOrder.LITTLE_ENDIAN)
         (0..< values.size() ).each {
@@ -74,7 +96,7 @@ class QVXWriter {
         outStream.write(bytes)
     }
 
-    def close() {
+    private void close() {
         writer.close()
     }
 
