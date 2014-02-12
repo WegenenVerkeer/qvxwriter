@@ -24,7 +24,7 @@ class QVXDbExportConfig {
 
     QVXDbExportConfig(String propFile) {
         def props = new Properties()
-        def inStream = this.class.getClassLoader().getResourceAsStream(propFile)
+        def inStream = new FileInputStream(propFile)
         if (inStream != null) {
             props.load(inStream)
         } else {

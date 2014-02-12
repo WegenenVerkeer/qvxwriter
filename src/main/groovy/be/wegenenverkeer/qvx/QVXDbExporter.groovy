@@ -17,9 +17,9 @@ class QVXDbExporter {
         this(new QVXDbExportConfig())
     }
 
-    QVXDbExporter(QVXDbExportConfig config) {
-        if (config != null) {
-            this.config = config
+    QVXDbExporter(String configFileName) {
+        if (configFileName != null) {
+            this.config = new QVXDbExportConfig(configFileName)
         } else {
             this.config = new QVXDbExportConfig()
         }
