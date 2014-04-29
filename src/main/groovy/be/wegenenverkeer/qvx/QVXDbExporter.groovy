@@ -13,16 +13,8 @@ class QVXDbExporter {
 
     String[] tableTypes = ["TABLE", "VIEW"]
 
-    QVXDbExporter() {
-        this(new QVXDbExportConfig())
-    }
-
-    QVXDbExporter(String configFileName) {
-        if (configFileName != null) {
-            this.config = new QVXDbExportConfig(configFileName)
-        } else {
-            this.config = new QVXDbExportConfig()
-        }
+    QVXDbExporter(OptionAccessor options) {
+        this.config = new QVXDbExportConfig(options)
     }
 
     public void run() {

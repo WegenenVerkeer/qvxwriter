@@ -18,27 +18,14 @@ class QVXDbExportConfig {
 
     final String outputDir
 
-    QVXDbExportConfig() {
-        this("qvxDbExportConfig.properties")
-    }
-
-    QVXDbExportConfig(String propFile) {
-        def props = new Properties()
-        def inStream = new FileInputStream(propFile)
-        if (inStream != null) {
-            props.load(inStream)
-        } else {
-            throw new IOException( "Configuration file $propFile not found on classpath." )
-        }
-
-        this.jdbcUrl = props.getProperty("jdbcUrl")
-        this.dbUserName = props.getProperty("dbUserName")
-        this.dbPassword = props.getProperty("dbPassword")
-        this.jdbcDriver = props.getProperty("jdbcDriver")
-        this.dbSchemaPattern = props.getProperty("dbSchemaPattern")
-        this.dbTableNamePattern = props.getProperty("dbTableNamePattern")
-        this.outputDir = props.getProperty("outputDir")
-
+    QVXDbExportConfig(OptionAccessor options) {
+        this.jdbcUrl = options.jdbcUrl
+        this.dbUserName = options.dbUserName
+        this.dbPassword = options.dbPassword
+        this.jdbcDriver = options.jdbcDriver
+        this.dbSchemaPattern = options.dbSchemaPattern
+        this.dbTableNamePattern = options.dbTableNamePattern
+        this.outputDir = options.out
     }
 
     String toString(){

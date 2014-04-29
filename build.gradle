@@ -8,7 +8,8 @@ dependencies {
     compile(
             [group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.5'],
             [group: 'org.codehaus.groovy', name: 'groovy-xml', version: '2.0.5'],
-            [group: 'org.codehaus.groovy', name: 'groovy-sql', version: '2.0.5']
+            [group: 'org.codehaus.groovy', name: 'groovy-sql', version: '2.0.5'],
+            [group: 'commons-cli', name: 'commons-cli', version: '1.2']
     )
 
     runtime(
