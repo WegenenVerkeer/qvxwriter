@@ -10,6 +10,7 @@ import be.wegenenverkeer.qvx.QVXWriter
 class QVXDbExporter {
 
     private final QVXDbExportConfig config;
+    private static final int FETCH_SIZE = 1024;
 
     String[] tableTypes = ["TABLE", "VIEW"]
 
@@ -20,6 +21,13 @@ class QVXDbExporter {
     public void run() {
         def start = System.currentTimeMillis()
         def db = groovy.sql.Sql.newInstance(config.jdbcUrl, config.dbUserName, config.dbPassword, config.jdbcDriver)
+
+        db.getConnection().setAutoCommit(false)
+        //this is required for fetch-size limit to work (see oa.http://stackoverflow.com/questions/1468036/java-jdbc-ignores-setfetchsize)
+        println "Setting fetch size to:" + FETCH_SIZE
+        db.withStatement { stmt -> stmt.setFetchSize(FETCH_SIZE) }
+
+
         def tableMeta = getMetaData(db).getTables(null, config.dbSchemaPattern, config.dbTableNamePattern, tableTypes)
 
         while (tableMeta.next()) {

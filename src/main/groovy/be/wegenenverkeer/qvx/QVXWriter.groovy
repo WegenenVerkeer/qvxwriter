@@ -31,7 +31,9 @@ class QVXWriter {
             this.writeData(row.toRowResult())
         }
 
+
         db.eachRow(sqlStmt, writeHeader, writeRow)
+
         println "Export complete."
         close()
     }
