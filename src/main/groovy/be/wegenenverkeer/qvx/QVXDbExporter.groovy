@@ -11,7 +11,7 @@ class QVXDbExporter {
 
     private final QVXDbExportConfig config;
     private static final int FETCH_SIZE = 1024;
-
+        
     String[] tableTypes = ["TABLE", "VIEW"]
 
     QVXDbExporter(OptionAccessor options) {
